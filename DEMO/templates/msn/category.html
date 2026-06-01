@@ -1,0 +1,176 @@
+{% extends "msn/base.html" %}
+
+{% block title %}{{ category_label }} — MSN Clone{% endblock %}
+
+{% block content %}
+<main class="max-w-[1600px] w-full mx-auto px-4 py-6">
+
+    <div class="mb-6">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    {{ category_label }}
+                </h1>
+
+                <p class="text-sm text-gray-500 mt-1">
+                    Showing {{ total_items }} selected articles.
+                    {% if category_count %}
+                        Dataset has {{ category_count }} articles in this category.
+                    {% endif %}
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('home') }}"
+                class="px-4 py-2 rounded-full bg-white border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-100"
+            >
+                ← Back to Home
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+        <section class="lg:col-span-3 space-y-6">
+
+            {% if top_stories %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for item in top_stories %}
+                <article class="news-card bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                    <a href="{{ url_for('article', news_id=item.news_id) }}">
+                        <div class="h-64 bg-gray-100 overflow-hidden">
+                            <img
+                                src="{{ item.img }}"
+                                alt=""
+                                class="w-full h-full object-cover"
+                                onerror="this.onerror=null;this.src='https://placehold.co/640x400/e5e7eb/111827?text=News'"
+                            >
+                        </div>
+
+                        <div class="p-4">
+                            <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                                <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold">
+                                    {{ item.category }}
+                                </span>
+                                <span>{{ item.subcategory }}</span>
+                            </div>
+
+                            <h2 class="text-xl font-bold text-gray-900 line-clamp-2">
+                                {{ item.title }}
+                            </h2>
+
+                            <p class="text-sm text-gray-600 mt-2 line-clamp-3">
+                                {{ item.abstract }}
+                            </p>
+                        </div>
+                    </a>
+                </article>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="space-y-4">
+                {% for item in main_items %}
+                <article class="news-card bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                    <div class="flex flex-col sm:flex-row">
+                        <a
+                            href="{{ url_for('article', news_id=item.news_id) }}"
+                            class="sm:w-60 h-48 sm:h-auto bg-gray-100 overflow-hidden flex-shrink-0"
+                        >
+                            <img
+                                src="{{ item.img }}"
+                                alt=""
+                                class="w-full h-full object-cover"
+                                onerror="this.onerror=null;this.src='https://placehold.co/360x240/e5e7eb/111827?text=News'"
+                            >
+                        </a>
+
+                        <div class="p-4 flex-1">
+                            <div class="text-xs text-gray-500 mb-2">
+                                {{ item.category }} · {{ item.subcategory }}
+                            </div>
+
+                            <h3 class="text-lg font-bold text-gray-900 line-clamp-2">
+                                <a href="{{ url_for('article', news_id=item.news_id) }}">
+                                    {{ item.title }}
+                                </a>
+                            </h3>
+
+                            <p class="text-sm text-gray-600 mt-2 line-clamp-3">
+                                {{ item.abstract }}
+                            </p>
+
+                            <div class="flex items-center justify-between mt-4">
+                                <a
+                                    href="{{ url_for('article', news_id=item.news_id) }}"
+                                    class="text-sm font-semibold text-blue-600 hover:underline"
+                                >
+                                    Read full story →
+                                </a>
+
+                                <span class="text-xs text-gray-400">
+                                    {{ item.news_id }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            {% if not top_stories and not main_items %}
+            <div class="bg-white rounded-2xl border border-gray-200 p-8 text-center">
+                <h2 class="text-xl font-bold text-gray-900">
+                    No articles found
+                </h2>
+
+                <p class="text-gray-500 mt-2">
+                    There are no articles for this category.
+                </p>
+            </div>
+            {% endif %}
+
+        </section>
+
+        <aside class="lg:col-span-1 space-y-4">
+
+            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
+                <h3 class="font-bold text-gray-900 mb-3">
+                    About {{ category_label }}
+                </h3>
+
+                <p class="text-sm text-gray-600">
+                    This page only shows articles where category equals
+                    <span class="font-semibold text-blue-700">{{ category_key }}</span>.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sticky top-28">
+                <h3 class="font-bold text-gray-900 mb-4">
+                    More {{ category_label }}
+                </h3>
+
+                <div class="space-y-3">
+                    {% for item in sidebar_items %}
+                    <a
+                        href="{{ url_for('article', news_id=item.news_id) }}"
+                        class="block border-b border-gray-100 pb-3 last:border-0"
+                    >
+                        <p class="text-sm font-semibold text-gray-900 line-clamp-2">
+                            {{ item.title }}
+                        </p>
+
+                        <p class="text-xs text-gray-500 mt-1">
+                            {{ item.subcategory }} · {{ item.news_id }}
+                        </p>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </aside>
+
+    </div>
+
+</main>
+{% endblock %}

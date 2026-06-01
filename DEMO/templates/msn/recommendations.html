@@ -1,0 +1,283 @@
+{% extends "msn/base.html" %}
+
+{% block title %}Co-NAML-LSTUR Recommendations{% endblock %}
+
+{% block extra_css %}
+<style>
+    .recommendation-card {
+        transition: all 0.25s ease;
+    }
+
+    .recommendation-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 28px rgba(15, 23, 42, 0.12);
+    }
+
+    .score-badge {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid #e5e7eb;
+        color: #111827;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        z-index: 10;
+        box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="max-w-7xl mx-auto px-4 py-8">
+
+    <div class="mb-8">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+                    <i class="fas fa-robot text-blue-600"></i>
+                    Co-NAML-LSTUR News Recommendations
+                </h1>
+
+                <p class="text-gray-600">
+                    Recommendations are generated from your linked MIND user ID reading history and current session history.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('home') }}"
+                class="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-500"
+            >
+                <i class="fas fa-arrow-left text-xs"></i>
+                Back to Discover
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+        <section class="lg:col-span-3 space-y-6">
+
+            <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-1">
+                            Active AI model
+                        </p>
+
+                        <h2 class="text-xl font-bold text-gray-900">
+                            {{ selected_model_label }}
+                        </h2>
+
+                        <p class="text-sm text-gray-500 mt-2">
+                            {{ ranking_note if ranking_note else "Model is ready." }}
+                        </p>
+
+                        <p class="text-sm text-gray-500 mt-1">
+                            History articles used:
+                            <strong>{{ history_count if history_count is defined else history_items|length }}</strong>
+                        </p>
+                    </div>
+
+                    <form method="post" action="{{ url_for('recommendations') }}">
+                        <input type="hidden" name="action" value="generate">
+
+                        <button
+                            type="submit"
+                            class="px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold"
+                        >
+                            <i class="fas fa-magic mr-1"></i>
+                            Regenerate
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {% if recommendations %}
+
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <h2 class="text-xl font-bold text-gray-900">
+                        Predicted Click Recommendations
+                        <span class="text-sm font-normal text-gray-500">
+                            ({{ recommendations|length }} articles)
+                        </span>
+                    </h2>
+
+                    {% if generation_time is not none %}
+                        <span class="text-sm text-gray-500">
+                            Generated in {{ "%.2f"|format(generation_time) }}s
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="space-y-4">
+                    {% for rec in recommendations %}
+                        <article class="recommendation-card relative bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:border-blue-300">
+
+                            {% if rec.score is not none %}
+                                <div class="score-badge">
+                                    {% if "Fallback" in rec.badge %}
+                                        Popularity score {{ "%.3f"|format(rec.score) }}
+                                    {% else %}
+                                        Click score {{ "%.3f"|format(rec.score) }}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+
+                            <div class="flex flex-col md:flex-row">
+                                <a
+                                    href="{{ url_for('article', news_id=rec.news_id) }}"
+                                    class="md:w-60 h-48 md:h-auto overflow-hidden bg-gray-100 flex-shrink-0"
+                                >
+                                    <img
+                                        src="{{ rec.img }}"
+                                        alt=""
+                                        class="w-full h-full object-cover"
+                                        loading="lazy"
+                                        referrerpolicy="no-referrer"
+                                        onerror="this.onerror=null;this.src='https://placehold.co/400x300/e5e7eb/111827?text=News'"
+                                    >
+                                </a>
+
+                                <div class="p-5 flex-grow">
+                                    <div class="flex flex-wrap gap-2 mb-3">
+                                        <span class="text-xs px-2 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+                                            {{ rec.category }}
+                                        </span>
+
+                                        <span class="text-xs px-2 py-1 rounded-full bg-gray-50 text-gray-600 border border-gray-100">
+                                            {{ rec.subcategory }}
+                                        </span>
+
+                                        <span class="text-xs px-2 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-100">
+                                            {{ rec.badge }}
+                                        </span>
+                                    </div>
+
+                                    <h3 class="text-xl font-bold text-gray-900 mb-2 hover:text-blue-600 leading-snug">
+                                        <a href="{{ url_for('article', news_id=rec.news_id) }}">
+                                            {{ rec.title }}
+                                        </a>
+                                    </h3>
+
+                                    <p class="text-gray-600 text-sm line-clamp-2 mb-4">
+                                        {{ rec.abstract }}
+                                    </p>
+
+                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                        <a
+                                            href="{{ url_for('article', news_id=rec.news_id) }}"
+                                            class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-500 text-sm font-semibold"
+                                        >
+                                            Read full story
+                                            <i class="fas fa-arrow-right text-xs"></i>
+                                        </a>
+
+                                        <span class="text-xs text-gray-500 font-mono">
+                                            {{ rec.news_id }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+
+            {% elif generated %}
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-10 text-center shadow-sm">
+                    <i class="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-3"></i>
+
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">
+                        No recommendations generated
+                    </h3>
+
+                    <p class="text-gray-600 mb-5">
+                        Please link a valid MIND user ID in Settings or open some articles first.
+                    </p>
+
+                    <a
+                        href="{{ url_for('settings') }}"
+                        class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold"
+                    >
+                        Go to Settings
+                        <i class="fas fa-arrow-right text-xs"></i>
+                    </a>
+                </div>
+
+            {% endif %}
+        </section>
+
+        <aside class="lg:col-span-1 space-y-4">
+
+            <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+                <h3 class="text-lg font-bold text-gray-900 mb-2">
+                    User reading history
+                </h3>
+
+                <p class="text-sm text-gray-500 mb-4">
+                    These articles are used as user history for Co-NAML-LSTUR click prediction.
+                </p>
+
+                {% if history_items %}
+                    <div class="space-y-3 max-h-[520px] overflow-y-auto custom-scrollbar pr-1">
+                        {% for item in history_items %}
+                            <a
+                                href="{{ url_for('article', news_id=item.news_id) }}"
+                                class="block p-3 rounded-xl border border-gray-100 hover:bg-gray-50"
+                            >
+                                <p class="text-sm font-semibold text-gray-900 line-clamp-2">
+                                    {{ item.title }}
+                                </p>
+
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ item.category }} · {{ item.subcategory }}
+                                </p>
+
+                                <p class="text-[11px] text-gray-400 mt-1">
+                                    {{ item.source }}
+                                </p>
+
+                                <p class="text-[11px] text-gray-400 mt-1 font-mono">
+                                    {{ item.news_id }}
+                                </p>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-sm text-gray-500 bg-gray-50 rounded-xl p-4">
+                        No reading history yet.
+                        <a href="{{ url_for('settings') }}" class="text-blue-600 hover:underline">
+                            Link a MIND user ID
+                        </a>
+                        or browse news first.
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="bg-blue-50 rounded-2xl border border-blue-100 p-5">
+                <h3 class="font-bold text-blue-900 mb-2">
+                    Model info
+                </h3>
+
+                <p class="text-sm text-blue-800">
+                    Current model:
+                    <strong>Co-NAML-LSTUR</strong>
+                </p>
+
+                <p class="text-xs text-blue-700 mt-2">
+                    Checkpoint:
+                    <code>best_co_naml_lstur.pt</code>
+                </p>
+
+                <p class="text-xs text-blue-700 mt-2">
+                    Max candidates: {{ max_candidates if max_candidates is defined else 100 }}
+                </p>
+            </div>
+
+        </aside>
+    </div>
+</main>
+{% endblock %}

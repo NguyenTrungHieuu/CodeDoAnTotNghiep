@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}
+            MSN Clone — Personalized News
+        {% endblock %}
+    </title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fb;
+            color: #111827;
+        }
+
+        .bg-msn-dark {
+            background-color: #ffffff;
+        }
+
+        .bg-msn-card {
+            background-color: #ffffff;
+        }
+
+        .bg-msn-card-hover,
+        .hover\:bg-msn-card-hover:hover {
+            background-color: #f3f4f6;
+        }
+
+        .border-msn-gray {
+            border-color: #e5e7eb;
+        }
+
+        .gradient-text {
+            background: linear-gradient(45deg, #2563eb, #9333ea);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header {
+            background-color: #ffffff;
+            box-shadow: 0 1px 8px rgba(15, 23, 42, 0.08);
+        }
+
+        footer {
+            background-color: #ffffff;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        input,
+        select,
+        textarea {
+            background-color: #ffffff;
+            border: 1px solid #d1d5db;
+            color: #111827;
+        }
+
+        input::placeholder {
+            color: #9ca3af;
+        }
+
+        .news-card,
+        .recommendation-card {
+            transition: all 0.25s ease;
+        }
+
+        .news-card:hover,
+        .recommendation-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .line-clamp-1 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 1;
+            line-clamp: 1;
+        }
+
+        .line-clamp-2 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+        }
+
+        .line-clamp-3 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+        }
+
+        .line-clamp-4 {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 4;
+            line-clamp: 4;
+        }
+
+        .flash-success {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+        .flash-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .flash-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .flash-info {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+<header class="sticky top-0 z-50 border-b border-gray-200">
+
+    <div class="flex items-center justify-between px-4 h-16">
+
+        <a
+            href="{{ url_for('home') }}"
+            class="flex items-center space-x-2"
+        >
+            <i class="fas fa-butterfly text-2xl gradient-text"></i>
+
+            <span class="text-2xl font-bold tracking-tight">
+                msn
+            </span>
+        </a>
+
+        <div class="flex-grow max-w-2xl mx-4 hidden sm:block">
+            <div class="relative flex items-center w-full h-10 rounded-full bg-gray-100 border border-gray-300">
+
+                <div class="grid place-items-center h-full w-12 text-gray-500">
+                    <i class="fas fa-search"></i>
+                </div>
+
+                <input
+                    class="h-full w-full outline-none text-sm bg-transparent pr-2"
+                    type="search"
+                    placeholder="Search the web"
+                    disabled
+                >
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+
+            {% if user %}
+
+                <a
+                    href="{{ url_for('reading_history') }}"
+                    class="text-gray-600 hover:text-blue-600"
+                    title="Reading History"
+                >
+                    <i class="fas fa-history text-lg"></i>
+                </a>
+
+                <a
+                    href="{{ url_for('settings') }}"
+                    class="text-gray-600 hover:text-blue-600"
+                    title="Settings"
+                >
+                    <i class="fas fa-cog text-lg"></i>
+                </a>
+
+                <div class="hidden md:flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold">
+                        {{ user.username[0]|upper }}
+                    </div>
+
+                    <span class="text-sm font-medium text-gray-700">
+                        {{ user.username }}
+                    </span>
+                </div>
+
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="px-4 py-1.5 rounded-full border border-gray-300 hover:bg-gray-100 text-sm font-semibold"
+                >
+                    Sign out
+                </a>
+
+            {% else %}
+
+                <a
+                    href="{{ url_for('login') }}"
+                    class="px-4 py-1.5 rounded-full border border-gray-300 hover:bg-gray-100 text-sm font-semibold"
+                >
+                    Sign in
+                </a>
+
+                <a
+                    href="{{ url_for('register') }}"
+                    class="px-4 py-1.5 rounded-full bg-blue-600 hover:bg-blue-500 text-sm font-semibold text-white"
+                >
+                    Register
+                </a>
+
+            {% endif %}
+        </div>
+    </div>
+
+    <nav class="border-t border-gray-100 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+
+            <div class="flex items-center justify-between h-12 gap-4">
+
+                <div class="flex items-center gap-1 overflow-x-auto custom-scrollbar">
+
+                    {% for key, label, href in header_categories|default([
+                        ('home','Home','/'),
+                        ('news','News','/news'),
+                        ('sports','Sports','/sports'),
+                        ('finance','Finance','/finance'),
+                        ('foodanddrink','Food & Drink','/foodanddrink'),
+                        ('travel','Travel','/travel'),
+                        ('lifestyle','Lifestyle','/lifestyle'),
+                        ('video','Video','/video'),
+                        ('weather','Weather','/weather'),
+                        ('health','Health','/health')
+                    ]) %}
+
+                        <a
+                            href="{{ href }}"
+                            class="px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap
+                            {% if active_page|default('home') == key %}
+                                bg-blue-50 text-blue-700
+                            {% else %}
+                                text-gray-700 hover:text-blue-700 hover:bg-gray-100
+                            {% endif %}"
+                        >
+                            {% if key == 'home' %}
+                                <i class="fas fa-house mr-1"></i>
+                            {% elif key == 'news' %}
+                                <i class="fas fa-newspaper mr-1"></i>
+                            {% elif key == 'sports' %}
+                                <i class="fas fa-football-ball mr-1"></i>
+                            {% elif key == 'finance' %}
+                                <i class="fas fa-chart-line mr-1"></i>
+                            {% elif key == 'foodanddrink' %}
+                                <i class="fas fa-utensils mr-1"></i>
+                            {% elif key == 'travel' %}
+                                <i class="fas fa-plane mr-1"></i>
+                            {% elif key == 'lifestyle' %}
+                                <i class="fas fa-heart mr-1"></i>
+                            {% elif key == 'video' %}
+                                <i class="fas fa-play-circle mr-1"></i>
+                            {% elif key == 'weather' %}
+                                <i class="fas fa-cloud-sun mr-1"></i>
+                            {% elif key == 'health' %}
+                                <i class="fas fa-notes-medical mr-1"></i>
+                            {% endif %}
+
+                            {{ label }}
+                        </a>
+
+                    {% endfor %}
+
+                    {% if user %}
+
+                        <a
+                            href="{{ url_for('recommendations') }}"
+                            class="px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap
+                            {% if active_page|default('') == 'ai' %}
+                                bg-purple-50 text-purple-700
+                            {% else %}
+                                text-gray-700 hover:text-blue-700 hover:bg-gray-100
+                            {% endif %}"
+                        >
+                            <i class="fas fa-robot text-purple-500 mr-1"></i>
+                            AI Recommend
+                        </a>
+
+                        <a
+                            href="{{ url_for('reading_history') }}"
+                            class="px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap
+                            {% if active_page|default('') == 'history' %}
+                                bg-blue-50 text-blue-700
+                            {% else %}
+                                text-gray-700 hover:text-blue-700 hover:bg-gray-100
+                            {% endif %}"
+                        >
+                            <i class="fas fa-history mr-1"></i>
+                            History
+                        </a>
+
+                    {% endif %}
+                </div>
+
+                {% if user and model_options is defined %}
+
+                    <form
+                        method="get"
+                        action="{{ url_for('recommendations') }}"
+                        class="hidden md:flex items-center gap-2 shrink-0"
+                    >
+
+                        <select
+                            name="model"
+                            class="rounded-full px-3 py-1.5 text-sm border border-gray-300 bg-white"
+                        >
+                            {% for opt in model_options %}
+                                <option
+                                    value="{{ opt.key }}"
+                                    {% if selected_model is defined and selected_model == opt.key %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ opt.label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <button
+                            class="px-3 py-1.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold"
+                        >
+                            Choose
+                        </button>
+                    </form>
+
+                {% endif %}
+
+            </div>
+        </div>
+    </nav>
+</header>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+
+    <div class="max-w-5xl w-full mx-auto px-4 pt-4 space-y-2">
+
+        {% for category, message in messages %}
+
+            <div class="rounded-lg px-4 py-3 text-sm flash-{{ category }}">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+    </div>
+
+    {% endif %}
+{% endwith %}
+
+<div class="flex-grow">
+    {% block content %}
+    {% endblock %}
+</div>
+
+<footer class="mt-auto py-6 text-sm">
+
+    <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+
+        <div>
+            © 2026 MSN Clone Demo
+        </div>
+
+        <div class="flex gap-4 flex-wrap">
+
+            <a href="{{ url_for('home') }}" class="hover:text-blue-600">
+                Home
+            </a>
+
+            <a href="/news" class="hover:text-blue-600">
+                News
+            </a>
+
+            <a href="/sports" class="hover:text-blue-600">
+                Sports
+            </a>
+
+            <a href="/finance" class="hover:text-blue-600">
+                Finance
+            </a>
+
+            {% if user %}
+
+                <a href="{{ url_for('recommendations') }}" class="hover:text-blue-600">
+                    AI Recommendations
+                </a>
+
+                <a href="{{ url_for('reading_history') }}" class="hover:text-blue-600">
+                    History
+                </a>
+
+            {% endif %}
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+{
+  "U13740": {
+    "password_hash": "scrypt:32768:8:1$lHYe8mbetrIMXbW7$bd2611d482e7a0825ff70c3c205536696bf92d34bb87d6eac98a8a3eed4b7225024f397c931535b3c7de907ebaf5f5c6cef880fe023bee11ee6cd2b42299f720",
+    "mind_user_id": "U13740"
+  },
+  "U91836": {
+    "password_hash": "scrypt:32768:8:1$lZFQFV08ZDcpyL4w$b1918ee34b3e522ef813e84a7dc505e4e9392e2e783edb06e787b51bb13a27a26ee05bad17046ad13b977dd46fbea41dcb8f6a3c5dd71d247237e1de5d839b4d",
+    "mind_user_id": "U91836"
+  },
+  "U73700": {
+    "password_hash": "scrypt:32768:8:1$6vMTyA6rIYk67uE4$29b1b3efd61a9052a6c99adab975091d2af84f0f74aa4e29e69bf7b0d5b86aa0ac29e5d2592adc4f44fd476787f0b1e0283f73a1487b09eca8cc4cb3903c3782",
+    "mind_user_id": "U73700"
+  },
+  "aa": {
+    "password_hash": "scrypt:32768:8:1$Ra4p7PF9ZeEiyL2x$9a3dfc7c432271a8a52a9cdba847bafbdd286906d8ec7041ac3a69c991e39cce1fc6f5ed6f64957b67d1045e76d87275e2e4d3bc5b2aa508330fef42363cae4d",
+    "mind_user_id": null
+  },
+  "abcd": {
+    "password_hash": "scrypt:32768:8:1$NRKY9hH70Mwkv1tn$e707e5ad011ab91a7cb2337b5611e860dec1533b481a1d730714d4d8221ff5ec2154fe8e39851d1e08d531b23ebcde49f3f6ad6604c26b1296c43b6bcc489e69",
+    "mind_user_id": null
+  },
+  "U100": {
+    "password_hash": "scrypt:32768:8:1$4gyfHzebAIBRMwrs$07206b3e516e82646086798603c7bc25aad1a357efac2753ac7f9afb904b68236f284e26002067d413ca5fbb3be253b11880dd9bed38a490ae6e38fe5817c8ec",
+    "mind_user_id": "U100"
+  },
+  "U1000": {
+    "password_hash": "scrypt:32768:8:1$lg4eLet40sAcna7k$e903bea359973ba20bb20c3160c5c20ac03a148c14b98bf8b86f1e561cda4fcaa73ddc85dd0af23ddb565432f7c7f2a0ba93e72b076825112d15dd421282ded1",
+    "mind_user_id": "U1000"
+  },
+  "hieu": {
+    "password_hash": "scrypt:32768:8:1$WXGyGblu7Egnf4Qr$715820eec05726c42b8de411bbff9f29085089b0215a85b2b1b8f98304994a0c9314b28076986c8121237bdf9867b14613b97d85461566304b163fbbcc25c15e",
+    "mind_user_id": "U46596"
+  },
+  "U46596": {
+    "password_hash": "scrypt:32768:8:1$Gxr0SSoDKxb0zJaL$f136e75816b49e1b08bfb6c5e88931e077fd70f3bafbef34341727f35ab804643249916ab3ccd5b6c0eb1cc8635f517f621539d22ffcd26e761f520da4dc2893",
+    "mind_user_id": "U46596"
+  },
+  "hieu1": {
+    "password_hash": "scrypt:32768:8:1$PNpFanBBk69wTrjM$c44954ca686127f7fdadb55e72325abf4ac6e734995c2562b814e9e24f6be085ea8883ae444e5c78d2ea7dfc29fa181657069528d77a01820903f01c8da0bcac",
+    "mind_user_id": null
+  }
+}

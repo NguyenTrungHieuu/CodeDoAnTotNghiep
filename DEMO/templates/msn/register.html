@@ -1,0 +1,32 @@
+{% extends "msn/base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<main class="max-w-lg mx-auto px-4 py-12">
+    <div class="bg-msn-card rounded-xl border border-msn-gray p-8">
+        <h1 class="text-2xl font-bold text-white mb-2">Create account</h1>
+        <p class="text-sm text-gray-400 mb-6">Optionally link an anonymous MIND <code class="text-gray-300">user_id</code> from <code class="text-gray-300">behaviors.tsv</code> so we can load real click history.</p>
+        <form method="post" class="space-y-4">
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">Username</label>
+                <input name="username" required minlength="2" class="w-full rounded-lg bg-gray-900 border border-msn-gray px-3 py-2 text-white" />
+            </div>
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">Password</label>
+                <input type="password" name="password" required minlength="4" class="w-full rounded-lg bg-gray-900 border border-msn-gray px-3 py-2 text-white" />
+            </div>
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">MIND user ID (optional)</label>
+                <input name="mind_user_id" list="mind-ids" placeholder="e.g. U13740" class="w-full rounded-lg bg-gray-900 border border-msn-gray px-3 py-2 text-white font-mono text-sm" />
+                <datalist id="mind-ids">
+                    {% for uid in sample_mind_users %}
+                    <option value="{{ uid }}">
+                    {% endfor %}
+                </datalist>
+                <p class="text-xs text-gray-500 mt-1">Leave empty to browse trending only until you add an ID in Settings.</p>
+            </div>
+            <button type="submit" class="w-full py-2 rounded-full bg-blue-600 hover:bg-blue-500 font-semibold text-white">Register</button>
+        </form>
+        <p class="text-sm text-gray-500 mt-6 text-center">Already have an account? <a href="{{ url_for('login') }}" class="text-blue-400 hover:underline">Sign in</a></p>
+    </div>
+</main>
+{% endblock %}

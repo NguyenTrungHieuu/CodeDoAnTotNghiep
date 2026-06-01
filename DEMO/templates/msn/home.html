@@ -1,0 +1,481 @@
+{% extends "msn/base.html" %}
+{% block title %}Discover — Personalized News{% endblock %}
+
+{% block content %}
+<main class="flex-grow max-w-[1600px] w-full mx-auto px-4 py-6">
+    <div class="flex gap-6">
+
+        <!-- Main Content -->
+        <div class="flex-grow min-w-0 space-y-8">
+            <section class="mb-6">
+                <div class="rounded-[2rem] bg-gradient-to-r from-blue-50 via-white to-purple-50 border border-gray-200 shadow-sm px-6 py-7 md:px-8 md:py-9">
+                    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+
+                        <div>
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold mb-3">
+                                <i class="fas fa-bolt"></i>
+                                Personalized MSN-style news
+                            </div>
+
+                            <h1 class="text-3xl md:text-5xl font-black tracking-tight text-gray-950 leading-tight">
+                                Discover top stories
+                            </h1>
+
+                            <p class="mt-3 text-base md:text-lg text-gray-600 max-w-2xl">
+                                Read trending articles, explore categories, and get AI-powered recommendations from your MIND reading history.
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2">
+                            <a
+                                href="{{ url_for('news_page') }}"
+                                class="px-4 py-2 rounded-full bg-white border border-gray-200 text-gray-800 text-sm font-bold hover:border-blue-300 hover:text-blue-700 hover:shadow-sm transition"
+                            >
+                                <i class="fas fa-newspaper mr-1"></i>
+                                News
+                            </a>
+
+                            <a
+                                href="{{ url_for('sports_page') }}"
+                                class="px-4 py-2 rounded-full bg-white border border-gray-200 text-gray-800 text-sm font-bold hover:border-blue-300 hover:text-blue-700 hover:shadow-sm transition"
+                            >
+                                <i class="fas fa-trophy mr-1"></i>
+                                Sports
+                            </a>
+
+                            {% if user %}
+                            <a
+                                href="{{ url_for('recommendations_nrms') }}"
+                                class="px-4 py-2 rounded-full bg-purple-600 text-white text-sm font-bold hover:bg-purple-500 hover:shadow-md transition"
+                            >
+                                <i class="fas fa-brain mr-1"></i>
+                                AI Recommend For You
+                            </a>
+                            <a
+                                href="{{ url_for('recommendations_dkn', auto_generate=0) }}"
+                                class="px-4 py-2 rounded-full bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-500 hover:shadow-md transition"
+                            >
+                                <i class="fas fa-project-diagram mr-1"></i>
+                                DKN Recommend
+                            </a>
+
+                            <a
+                                href="{{ url_for('recommendations_naml', auto_generate=0) }}"
+                                class="px-4 py-2 rounded-full bg-orange-600 text-white text-sm font-bold hover:bg-orange-500 hover:shadow-md transition"
+                            >
+                                <i class="fas fa-layer-group mr-1"></i>
+                                NAML Recommend
+                            </a>
+                            {% else %}
+                            <a
+                                href="{{ url_for('login') }}"
+                                class="px-4 py-2 rounded-full bg-blue-600 text-white text-sm font-bold hover:bg-blue-500 hover:shadow-md transition"
+                            >
+                                <i class="fas fa-user mr-1"></i>
+                                Sign in
+                            </a>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- Top Stories Banner -->
+            <section class="bg-white rounded-3xl p-5 md:p-6 border border-gray-200 shadow-sm">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-black text-gray-950 tracking-tight">
+                            Top stories
+                        </h2>
+                        <p class="text-sm text-gray-500 mt-1">
+                            Latest trending stories
+                        </p>
+                    </div>
+
+                    <div class="hidden sm:flex items-center gap-2 text-sm text-gray-500">
+                        <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 font-bold">MLB</span>
+                        <span>First-May14</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {% for a in top_stories %}
+                    <a
+                        href="{{ url_for('article', news_id=a.news_id) }}"
+                        class="group block bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                    >
+                        <div class="relative h-64 md:h-72 overflow-hidden bg-gray-100">
+                            <img
+                                src="{{ a.img }}"
+                                alt=""
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                onerror="this.onerror=null;this.src='https://placehold.co/640x400/e5e7eb/111827?text=News'"
+                            >
+
+                            <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/75 via-black/30 to-transparent"></div>
+
+                            {% if a.badge %}
+                            <span class="absolute top-4 left-4 text-[11px] font-black px-3 py-1 rounded-full bg-blue-600 text-white shadow">
+                                {{ a.badge }}
+                            </span>
+                            {% endif %}
+
+                            <div class="absolute left-5 right-5 bottom-5">
+                                <div class="flex items-center gap-2 text-xs font-bold text-white/90 mb-2">
+                                    <span class="uppercase tracking-wide">{{ a.category }}</span>
+                                    <span>•</span>
+                                    <span>{{ a.subcategory }}</span>
+                                </div>
+
+                                <h3 class="text-2xl md:text-3xl font-black text-white leading-tight line-clamp-2 group-hover:text-blue-100 transition">
+                                    {{ a.title }}
+                                </h3>
+                            </div>
+                        </div>
+
+                        <div class="p-5">
+                            <p class="text-gray-700 text-base leading-relaxed line-clamp-3">
+                                {{ a.abstract[:180] }}{% if a.abstract|length > 180 %}...{% endif %}
+                            </p>
+
+                            <div class="flex items-center justify-between mt-4">
+                                <span class="text-sm font-bold text-blue-600">
+                                    Read full story →
+                                </span>
+
+                                {% if a.score %}
+                                <span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full">
+                                    score: {{ "%.3f"|format(a.score) }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Featured Stories -->
+            <section>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-black text-gray-950 tracking-tight">
+                            Featured stories
+                        </h2>
+                        <p class="text-sm text-gray-500 mt-1">
+                            Selected stories for quick reading
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    {% for a in grid_stories %}
+                    <a
+                        href="{{ url_for('article', news_id=a.news_id) }}"
+                        class="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                    >
+                        <div class="relative h-52 overflow-hidden bg-gray-100">
+                            <img
+                                src="{{ a.img }}"
+                                alt=""
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                onerror="this.onerror=null;this.src='https://placehold.co/640x400/e5e7eb/111827?text=News'"
+                            >
+
+                            {% if a.badge %}
+                            <span class="absolute top-3 left-3 text-[10px] font-black px-2.5 py-1 rounded-full bg-gray-950/80 text-white">
+                                {{ a.badge }}
+                            </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="p-5">
+                            <div class="flex items-center gap-2 mb-2 text-xs font-bold text-gray-500">
+                                <span class="uppercase tracking-wide">{{ a.category }}</span>
+                                <span>•</span>
+                                <span>{{ a.subcategory }}</span>
+                            </div>
+
+                            <h3 class="text-xl md:text-2xl font-black text-gray-950 leading-snug group-hover:text-blue-700 line-clamp-2 transition">
+                                {{ a.title }}
+                            </h3>
+
+                            <p class="text-sm text-gray-600 mt-3 line-clamp-2 leading-relaxed">
+                                {{ a.abstract }}
+                            </p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- NRMS Recommendations -->
+            {% if user and nrms_home_items is defined and nrms_home_items %}
+            <section class="bg-white rounded-3xl border border-gray-200 shadow-sm p-5 md:p-6">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-black mb-2">
+                            <i class="fas fa-brain"></i>
+                            NRMS DistilBERT
+                        </div>
+
+                        <h2 class="text-2xl md:text-3xl font-black text-gray-950 tracking-tight">
+                            Recommended for you
+                        </h2>
+
+                        <p class="text-sm text-gray-500 mt-1">
+                            Ranked by predicted click probability from your reading history.
+                        </p>
+                    </div>
+
+                    {% if nrms_home_time is not none %}
+                    <span class="hidden sm:inline-flex text-xs font-bold text-gray-500 bg-gray-50 border border-gray-200 px-3 py-1 rounded-full">
+                        Generated in {{ "%.2f"|format(nrms_home_time) }}s
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                    {% for a in nrms_home_items %}
+                    <a
+                        href="{{ url_for('article', news_id=a.news_id) }}"
+                        class="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                    >
+                        <div class="relative h-44 bg-gray-100 overflow-hidden">
+                            <img
+                                src="{{ a.img }}"
+                                alt=""
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                onerror="this.onerror=null;this.src='https://placehold.co/640x400/e5e7eb/111827?text=NRMS'"
+                            >
+
+                            <span class="absolute top-3 left-3 text-[10px] font-black px-2.5 py-1 rounded-full bg-purple-600 text-white">
+                                {{ a.badge }}
+                            </span>
+                        </div>
+
+                        <div class="p-4">
+                            <div class="flex items-center gap-2 mb-2 text-xs font-bold text-gray-500">
+                                <span class="uppercase tracking-wide">{{ a.category }}</span>
+                                <span>•</span>
+                                <span>{{ a.subcategory }}</span>
+                            </div>
+
+                            <h3 class="text-lg md:text-xl font-black text-gray-950 leading-snug line-clamp-2 group-hover:text-purple-700 transition">
+                                {{ a.title }}
+                            </h3>
+
+                            <p class="text-sm text-gray-600 mt-2 line-clamp-2">
+                                {{ a.abstract }}
+                            </p>
+
+                            {% if a.score %}
+                            <div class="mt-3 inline-flex items-center gap-1 text-xs font-black text-purple-700 bg-purple-50 border border-purple-100 px-2.5 py-1 rounded-full">
+                                <i class="fas fa-mouse-pointer"></i>
+                                Click probability {{ "%.3f"|format(a.score) }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                {% if nrms_home_note %}
+                <div class="mt-4 bg-purple-50 border border-purple-100 rounded-2xl p-3">
+                    <p class="text-xs text-purple-800 leading-relaxed">
+                        {{ nrms_home_note }}
+                    </p>
+                </div>
+                {% endif %}
+            </section>
+            {% endif %}
+
+            <!-- More Stories -->
+            <section class="bg-white rounded-3xl border border-gray-200 shadow-sm p-5 md:p-6">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h3 class="text-2xl md:text-3xl font-black text-gray-950 tracking-tight">
+                            More stories
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-1">
+                            Continue exploring more articles
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for a in sidebar_items[:6] %}
+                    <a
+                        href="{{ url_for('article', news_id=a.news_id) }}"
+                        class="group flex gap-4 bg-white rounded-2xl border border-gray-200 p-3 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                    >
+                        <div class="flex-grow min-w-0 py-1">
+                            <div class="flex items-center gap-2 text-xs font-bold text-gray-500 mb-1">
+                                <span class="uppercase tracking-wide">{{ a.category }}</span>
+                                <span>•</span>
+                                <span>{{ a.subcategory }}</span>
+                            </div>
+
+                            <h4 class="text-lg md:text-xl font-black text-gray-950 leading-snug group-hover:text-blue-700 line-clamp-2 transition">
+                                {{ a.title }}
+                            </h4>
+
+                            <p class="text-sm text-gray-600 mt-2 line-clamp-2">
+                                {{ a.abstract }}
+                            </p>
+                        </div>
+
+                        <div class="w-28 h-28 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100">
+                            <img
+                                src="{{ a.img }}"
+                                alt=""
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                onerror="this.onerror=null;this.src='https://placehold.co/120x120/e5e7eb/111827?text=News'"
+                            >
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="hidden lg:block w-80 flex-shrink-0 space-y-4">
+
+            <!-- WEATHER WIDGET -->
+            <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[1.75rem] p-5 text-white shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-sm font-bold">{{ weather.location }}</span>
+                    <i class="fas fa-sun text-yellow-200 text-2xl"></i>
+                </div>
+
+                <div class="text-5xl font-black mb-1">
+                    {{ weather.temp }}°F
+                </div>
+
+                <div class="text-sm opacity-90">
+                    {{ weather.condition }}
+                </div>
+            </div>
+
+            <!-- SIGN IN PROMPT -->
+            {% if not user %}
+            <div class="bg-white rounded-[1.75rem] border border-gray-200 shadow-sm p-5 text-center">
+                <div class="w-14 h-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-user-circle text-3xl"></i>
+                </div>
+
+                <h3 class="text-xl font-black text-gray-950 mb-1">
+                    Sign in
+                </h3>
+
+                <p class="text-sm text-gray-600 mb-4">
+                    For personalized news recommendations.
+                </p>
+
+                <a
+                    href="{{ url_for('login') }}"
+                    class="inline-block w-full py-2.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition"
+                >
+                    Sign in
+                </a>
+
+                <a
+                    href="{{ url_for('register') }}"
+                    class="inline-block w-full py-2.5 rounded-full border border-gray-300 hover:bg-gray-50 text-gray-800 font-bold text-sm mt-2 transition"
+                >
+                    Register
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- QUICK LINKS -->
+            <div class="bg-white rounded-[1.75rem] border border-gray-200 shadow-sm p-5">
+                <h3 class="text-lg font-black text-gray-950 mb-4">
+                    Explore categories
+                </h3>
+
+                <div class="space-y-2">
+                    <a href="{{ url_for('news_page') }}" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-800 font-bold">
+                        <span><i class="fas fa-newspaper text-blue-500 mr-2"></i>News</span>
+                        <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                    </a>
+
+                    <a href="{{ url_for('sports_page') }}" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-800 font-bold">
+                        <span><i class="fas fa-trophy text-orange-500 mr-2"></i>Sports</span>
+                        <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                    </a>
+
+                    <a href="{{ url_for('finance_page') }}" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-800 font-bold">
+                        <span><i class="fas fa-chart-line text-green-500 mr-2"></i>Finance</span>
+                        <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                    </a>
+
+                    <a href="{{ url_for('foodanddrink_page') }}" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-800 font-bold">
+                        <span><i class="fas fa-utensils text-red-500 mr-2"></i>Food & Drink</span>
+                        <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                    </a>
+
+                    <a href="{{ url_for('travel_page') }}" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-800 font-bold">
+                        <span><i class="fas fa-plane text-sky-500 mr-2"></i>Travel</span>
+                        <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                    </a>
+
+                    <a href="{{ url_for('lifestyle_page') }}" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-800 font-bold">
+                        <span><i class="fas fa-heart text-pink-500 mr-2"></i>Lifestyle</span>
+                        <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                    </a>
+
+                    <a href="{{ url_for('video_page') }}" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-800 font-bold">
+                        <span><i class="fas fa-play-circle text-purple-500 mr-2"></i>Video</span>
+                        <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                    </a>
+
+                    <a href="{{ url_for('weather_page') }}" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-800 font-bold">
+                        <span><i class="fas fa-cloud-sun text-yellow-500 mr-2"></i>Weather</span>
+                        <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                    </a>
+
+                    <a href="{{ url_for('health_page') }}" class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 text-gray-800 font-bold">
+                        <span><i class="fas fa-heartbeat text-red-500 mr-2"></i>Health</span>
+                        <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- PERSONALIZE -->
+            <div class="bg-white rounded-[1.75rem] border border-gray-200 shadow-sm p-5">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-sliders-h text-blue-600"></i>
+
+                    <span class="text-base font-black text-gray-950">
+                        Personalize
+                    </span>
+                </div>
+
+                <p class="text-sm text-gray-600">
+                    Make MSN my homepage and keep reading your favorite categories.
+                </p>
+            </div>
+
+            <!-- MODEL INFO -->
+            {% if ranking_note %}
+            <div class="bg-blue-50 rounded-[1.5rem] border border-blue-100 p-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-circle-info text-blue-600"></i>
+
+                    <span class="text-sm font-black text-blue-900">
+                        Ranking info
+                    </span>
+                </div>
+
+                <p class="text-xs text-blue-800 leading-relaxed">
+                    {{ ranking_note }}
+                </p>
+            </div>
+            {% endif %}
+        </aside>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,151 @@
+PATCH CHO flask_msn_site.py
+==========================
+
+1) Thêm import này ở đầu file, ngay dưới users_store import:
+
+from model_registry import get_model_service, model_label, model_options, valid_model_key
+
+
+2) XÓA đoạn BEST_MODEL_PATH, class _CoNAMLUnavailable và hàm get_co_naml_service_lazy().
+Không dùng path tuyệt đối D:/... nữa. Checkpoint sẽ được tìm trong ROOT, tức thư mục DEMO/.
+
+
+3) Thêm helper này sau current_user():
+
+def selected_model_key() -> str:
+    raw = request.values.get("model") or session.get("selected_model") or "co_naml_lstur"
+    key = valid_model_key(raw)
+    session["selected_model"] = key
+    return key
+
+
+4) Trong build_home_feed(), thay đoạn:
+
+    co = get_co_naml_service_lazy()
+    
+    if co.available:
+        try:
+            neural = co.recommend_trained(hist_ids, k=24, max_history=50)
+            ...
+
+bằng đoạn này:
+
+    model_key = session.get("selected_model", "co_naml_lstur")
+    service = get_model_service(ROOT, model_key)
+
+    if service.available:
+        try:
+            neural = service.recommend_trained(hist_ids, k=24, max_history=50)
+            if neural:
+                label = model_label(model_key)
+                items = [article_dict(repo, nid, sc, label) for nid, sc in neural]
+                items = [x for x in items if x]
+
+                top_stories = items[:2]
+                grid_stories = items[2:6]
+                sidebar_items = items[6:14]
+                ranking_note = service.status_message()
+
+                return top_stories, grid_stories, sidebar_items, ranking_note
+        except Exception as e:
+            print(f"{model_label(model_key)} recommendation error: {e}")
+            ranking_note = f"Recommendation error: {e}"
+
+    ids = repo.hot_news_ids(30)
+    items = [article_dict(repo, nid, None, "Trending") for nid in ids]
+    items = [x for x in items if x]
+
+    top_stories = items[:2]
+    grid_stories = items[2:6]
+    sidebar_items = items[6:14]
+
+    ranking_note = f"Using trending articles ({model_label(model_key)} unavailable)"
+    return top_stories, grid_stories, sidebar_items, ranking_note
+
+
+5) Trong home(), thêm biến model_options + selected_model khi render_template:
+
+        model_options=model_options(ROOT),
+        selected_model=session.get("selected_model", "co_naml_lstur"),
+
+
+6) Thay toàn bộ route recommendations() bằng hàm này:
+
+@app.route("/recommendations", methods=["GET", "POST"])
+def recommendations():
+    u = current_user()
+    if not u:
+        flash("Please sign in to get personalized AI recommendations.", "error")
+        return redirect(url_for("login"))
+
+    repo = get_repo()
+    history_items = read_history_list(200)
+
+    model_key = selected_model_key()
+    selected_label = model_label(model_key)
+    service = get_model_service(ROOT, model_key)
+
+    mind_raw = u.get("mind_user_id")
+    hist = repo.user_history_ids(mind_raw) if mind_raw else set()
+    session_history = set(session.get("read_ids", []))
+    all_history = list(hist | session_history)
+
+    recommendations = []
+    generation_time = None
+    generated = False
+    ranking_note = service.status_message() if hasattr(service, "status_message") else ""
+    max_candidates = 100
+
+    if request.method == "POST" and request.form.get("action") == "generate":
+        generated = True
+        session["selected_model"] = model_key
+
+        if not all_history:
+            flash("No reading history found. Please read some articles first to get recommendations.", "warning")
+        elif not service.available:
+            flash(f"{selected_label} is not available: {getattr(service, 'load_error', 'Unknown error')}", "error")
+        else:
+            try:
+                start_time = time.time()
+                neural_recs = service.recommend_trained(
+                    history_news_ids=all_history,
+                    k=12,
+                    max_history=50,
+                )
+                generation_time = time.time() - start_time
+
+                for nid, score in neural_recs:
+                    rec_dict = article_dict(repo, nid, score, f"AI · {selected_label}")
+                    if rec_dict:
+                        recommendations.append(rec_dict)
+
+                if recommendations:
+                    flash(f"✅ Generated {len(recommendations)} recommendations by {selected_label} in {generation_time:.2f}s!", "success")
+                    ranking_note = service.status_message()
+                else:
+                    flash("No recommendations generated. Try reading more articles or another MIND user ID.", "warning")
+            except Exception as e:
+                flash(f"Error generating recommendations: {str(e)}", "error")
+                ranking_note = f"Error: {str(e)}"
+
+    return render_template(
+        "msn/recommendations.html",
+        user=u,
+        history_items=history_items,
+        recommendations=recommendations,
+        generated=generated,
+        generation_time=generation_time,
+        ranking_note=ranking_note,
+        max_candidates=max_candidates,
+        model_options=model_options(ROOT),
+        selected_model=model_key,
+        selected_model_label=selected_label,
+    )
+
+
+7) Trong __main__, thay đoạn kiểm tra BEST_MODEL_PATH bằng:
+
+    print("\n📌 Model checkpoints:")
+    for opt in model_options(ROOT):
+        mark = "✅" if opt["exists"] else "⚠️"
+        print(f"   {mark} {opt['label']}: {opt['checkpoint']}")

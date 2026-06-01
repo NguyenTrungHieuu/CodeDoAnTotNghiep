@@ -1,0 +1,61 @@
+{% extends "msn/base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<main class="max-w-3xl mx-auto px-4 py-12 space-y-8">
+    <div class="bg-msn-card rounded-xl border border-msn-gray p-8">
+        <h1 class="text-2xl font-bold text-white mb-2">Settings</h1>
+        <p class="text-sm text-gray-400 mb-6">Signed in as <strong class="text-white">{{ user.username }}</strong></p>
+        <form method="post" class="space-y-4">
+            <div>
+                <label class="block text-sm text-gray-400 mb-1">MIND user ID (from behaviors.tsv)</label>
+                <input name="mind_user_id" list="mind-ids" value="{{ user.mind_user_id or '' }}" class="w-full rounded-lg bg-gray-900 border border-msn-gray px-3 py-2 text-white font-mono text-sm" />
+                <datalist id="mind-ids">
+                    {% for uid in sample_mind_users %}
+                    <option value="{{ uid }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+            <button type="submit" class="w-full py-2 rounded-full bg-blue-600 hover:bg-blue-500 font-semibold text-white">Save profile</button>
+        </form>
+        <a href="{{ url_for('home') }}" class="block text-center text-sm text-gray-500 mt-6 hover:text-gray-300">← Back to feed</a>
+    </div>
+
+    <div class="bg-msn-card rounded-xl border border-msn-gray overflow-hidden">
+        <div class="p-6 border-b border-msn-gray flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h2 class="text-xl font-bold text-white">Reading history</h2>
+                <p class="text-sm text-gray-400 mt-1">News you opened while signed in (this browser session only). Newest first.</p>
+            </div>
+            {% if history_items %}
+            <form method="post" class="shrink-0">
+                <input type="hidden" name="action" value="clear_reads" />
+                <button type="submit" class="w-full sm:w-auto px-4 py-2 rounded-full border border-red-800 text-red-300 hover:bg-red-950/50 text-sm font-semibold">Clear history</button>
+            </form>
+            {% endif %}
+        </div>
+        {% if not history_items %}
+        <div class="p-8 text-center text-gray-500 text-sm">
+            No articles yet. Open stories from Discover to see them here.
+        </div>
+        {% else %}
+        <ul class="divide-y divide-gray-700 max-h-[28rem] overflow-y-auto custom-scrollbar">
+            {% for it in history_items %}
+            <li>
+                <a href="{{ url_for('article', news_id=it.news_id) }}" class="flex items-start gap-3 px-6 py-3 hover:bg-msn-card-hover transition-colors">
+                    <span class="text-gray-600 text-xs font-mono w-7 shrink-0 pt-1">{{ loop.index }}</span>
+                    <div class="min-w-0 flex-grow">
+                        <p class="text-gray-100 text-sm font-medium leading-snug">{{ it.title }}</p>
+                        <p class="text-xs text-gray-500 mt-0.5">{{ it.category }} · {{ it.subcategory }} · <span class="font-mono">{{ it.news_id }}</span></p>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-600 text-xs shrink-0 mt-1.5"></i>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        <div class="p-4 bg-[#1a1a1a] border-t border-msn-gray text-center">
+            <a href="{{ url_for('reading_history') }}" class="text-sm text-blue-400 hover:underline">Open full history page</a>
+        </div>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}

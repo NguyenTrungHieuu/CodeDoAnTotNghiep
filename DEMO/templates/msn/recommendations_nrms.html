@@ -1,0 +1,226 @@
+{% extends "msn/base.html" %}
+
+{% block title %}NRMS DistilBERT Recommendations{% endblock %}
+
+{% block content %}
+<main class="max-w-7xl mx-auto px-4 py-8">
+
+    <div class="mb-8">
+        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+                    <i class="fas fa-brain text-purple-600"></i>
+                    NRMS News Recommendations
+                </h1>
+
+                <p class="text-gray-600">
+                    Recommendations are generated from your MIND reading history using predicted click score.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('home') }}"
+                class="inline-flex items-center gap-2 text-sm font-semibold text-purple-600 hover:text-purple-500"
+            >
+                <i class="fas fa-arrow-left text-xs"></i>
+                Back to Discover
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+        <section class="lg:col-span-3 space-y-6">
+
+            <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-1">
+                            Active AI model
+                        </p>
+
+                        <h2 class="text-xl font-bold text-gray-900">
+                            {{ selected_model_label }}
+                        </h2>
+
+                        <p class="text-sm text-gray-500 mt-2">
+                            {{ ranking_note if ranking_note else "Model is ready." }}
+                        </p>
+
+                        <p class="text-sm text-gray-500 mt-1">
+                            History articles used:
+                            <strong>{{ history_count }}</strong>
+                        </p>
+                    </div>
+
+                    <form method="post" action="{{ url_for('recommendations_nrms') }}">
+                        <input type="hidden" name="action" value="generate">
+
+                        <button
+                            type="submit"
+                            class="px-6 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold"
+                        >
+                            <i class="fas fa-magic mr-1"></i>
+                            Regenerate NRMS
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {% if recommendations %}
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <h2 class="text-xl font-bold text-gray-900">
+                        Predicted Click Recommendations
+                        <span class="text-sm font-normal text-gray-500">
+                            ({{ recommendations|length }} articles)
+                        </span>
+                    </h2>
+
+                    {% if generation_time is not none %}
+                    <span class="text-sm text-gray-500">
+                        Generated in {{ "%.2f"|format(generation_time) }}s
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="space-y-4">
+                    {% for rec in recommendations %}
+                    <article class="relative bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:border-purple-300 hover:shadow-lg transition">
+
+                        {% if rec.score is not none %}
+                        <div class="absolute top-3 right-3 bg-white border border-gray-200 text-gray-900 px-3 py-1 rounded-full text-xs font-bold shadow-sm z-10">
+                            Click Score {{ "%.3f"|format(rec.score) }}
+                        </div>
+                        {% endif %}
+
+                        <div class="flex flex-col md:flex-row">
+                            <a
+                                href="{{ url_for('article', news_id=rec.news_id) }}"
+                                class="md:w-60 h-48 md:h-auto overflow-hidden bg-gray-100 flex-shrink-0"
+                            >
+                                <img
+                                    src="{{ rec.img }}"
+                                    alt=""
+                                    class="w-full h-full object-cover"
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/400x300/e5e7eb/111827?text=NRMS'"
+                                >
+                            </a>
+
+                            <div class="p-5 flex-grow">
+                                <div class="flex flex-wrap gap-2 mb-3">
+                                    <span class="text-xs px-2 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-100">
+                                        {{ rec.category }}
+                                    </span>
+
+                                    <span class="text-xs px-2 py-1 rounded-full bg-gray-50 text-gray-600 border border-gray-100">
+                                        {{ rec.subcategory }}
+                                    </span>
+
+                                    <span class="text-xs px-2 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+                                        {{ rec.badge }}
+                                    </span>
+                                </div>
+
+                                <h3 class="text-xl font-bold text-gray-900 mb-2 hover:text-purple-600 leading-snug">
+                                    <a href="{{ url_for('article', news_id=rec.news_id) }}">
+                                        {{ rec.title }}
+                                    </a>
+                                </h3>
+
+                                <p class="text-gray-600 text-sm line-clamp-2 mb-4">
+                                    {{ rec.abstract }}
+                                </p>
+
+                                <div class="flex items-center justify-between gap-3">
+                                    <a
+                                        href="{{ url_for('article', news_id=rec.news_id) }}"
+                                        class="text-sm font-semibold text-purple-600 hover:underline"
+                                    >
+                                        Read full story →
+                                    </a>
+
+                                    <span class="text-xs text-gray-400 font-mono">
+                                        {{ rec.news_id }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bg-white rounded-2xl border border-gray-200 p-10 text-center shadow-sm">
+                    <i class="fas fa-brain text-5xl text-gray-300 mb-4"></i>
+
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">
+                        No NRMS recommendations yet
+                    </h2>
+
+                    <p class="text-gray-500">
+                        Please make sure you are logged in, have reading history, and the NRMS checkpoint exists.
+                    </p>
+                </div>
+            {% endif %}
+        </section>
+
+        <aside class="space-y-5">
+
+            <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+                <h3 class="font-bold text-gray-900 mb-3">
+                    User reading history
+                </h3>
+
+                <p class="text-sm text-gray-500 mb-4">
+                    These articles are used as user history for NRMS click prediction.
+                </p>
+
+                <div class="space-y-3 max-h-[600px] overflow-y-auto">
+                    {% for item in history_items %}
+                    <a
+                        href="{{ url_for('article', news_id=item.news_id) }}"
+                        class="block border-b border-gray-100 pb-3 hover:bg-gray-50 rounded-lg p-2"
+                    >
+                        <h4 class="text-sm font-semibold text-gray-900 line-clamp-2">
+                            {{ item.title }}
+                        </h4>
+
+                        <p class="text-xs text-gray-500 mt-1">
+                            {{ item.category }} · {{ item.subcategory }}
+                        </p>
+
+                        <p class="text-xs text-gray-400 mt-1">
+                            {{ item.source }}
+                        </p>
+
+                        <p class="text-xs text-gray-400 font-mono mt-1">
+                            {{ item.news_id }}
+                        </p>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="bg-purple-50 rounded-2xl border border-purple-100 p-5">
+                <h3 class="font-bold text-purple-900 mb-2">
+                    Model info
+                </h3>
+
+                <p class="text-sm text-purple-800">
+                    Current model: NRMS 
+                </p>
+
+                <p class="text-sm text-purple-800">
+                    Checkpoint: best_nrms_distilbert.pth
+                </p>
+
+                <p class="text-sm text-purple-800">
+                    Output: predicted click Score
+                </p>
+            </div>
+
+        </aside>
+    </div>
+</main>
+{% endblock %}

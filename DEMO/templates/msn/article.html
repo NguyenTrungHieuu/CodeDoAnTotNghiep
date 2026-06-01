@@ -1,0 +1,68 @@
+{% extends "msn/base.html" %}
+
+{% block title %}
+{{ article.title[:70] }}{% if article.title|length > 70 %}…{% endif %}
+{% endblock %}
+
+{% block content %}
+<main class="max-w-4xl mx-auto px-4 py-10">
+
+    <article class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+
+        <!-- Image Header -->
+        <div class="relative h-80 md:h-96 bg-gray-100 overflow-hidden">
+            <img 
+                src="{{ article.img }}" 
+                alt="{{ article.title }}" 
+                class="w-full h-full object-cover"
+                loading="lazy" 
+                referrerpolicy="no-referrer"
+                onerror="this.onerror=null;this.src='https://placehold.co/960x520/e5e7eb/111827?text=News'">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+        </div>
+
+        <!-- Article Content -->
+        <div class="p-8 md:p-10">
+
+            <!-- Meta info -->
+            <p class="text-sm text-gray-500 mb-3">
+                <span class="font-semibold text-gray-700">{{ article.category }}</span> · 
+                <span class="text-gray-600">{{ article.subcategory }}</span> · 
+                <span class="font-mono text-xs text-gray-400">{{ article.news_id }}</span>
+            </p>
+
+            <!-- Title -->
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
+                {{ article.title }}
+            </h1>
+
+            <!-- Original URL -->
+            {% if article.url and article.url != '#' %}
+            <p class="mb-6">
+                <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline text-sm font-medium">
+                    Open original article URL (from MIND dataset)
+                </a>
+            </p>
+            {% endif %}
+
+            <!-- Content -->
+            <div class="text-gray-800 leading-relaxed text-base md:text-lg space-y-4 whitespace-pre-wrap">
+                {{ article.abstract }}
+            </div>
+
+            <!-- Footer note -->
+            <p class="text-xs text-gray-400 mt-8">
+                Original MSN URLs in MIND may be expired. This page uses dataset metadata only.
+            </p>
+
+            <!-- Back to Home / More stories -->
+            <div class="mt-8 flex gap-4">
+                <a href="{{ url_for('home') }}" class="px-5 py-2 rounded-full border border-gray-300 hover:bg-gray-100 text-sm font-semibold">
+                    More stories
+                </a>
+            </div>
+
+        </div>
+    </article>
+</main>
+{% endblock %}
